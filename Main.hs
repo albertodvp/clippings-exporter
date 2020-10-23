@@ -1,36 +1,36 @@
-import Data.Text.Lazy.IO as TIO
+import qualified Data.Text.Lazy.IO as T
 import qualified Data.Text.Lazy as L
 import Main.Utf8
-import Text.Regex.TDFA 
-import Data.Tuple.Extra
+import Data.List
+import Data.Maybe
 
 clipSep :: L.Text
 clipSep = L.pack "=========="
 
--- TODO: Pass as argument
-fileName :: String
-fileName = "clippings.txt"
+inputFileName :: String
+inputFileName = "clippings.txt"
 
-type Book = L.Text
+outputFileName :: String
+outputFileName = "clippings.tsv"
+
+type Book     = L.Text
 type ClipText = L.Text
-type Date = L.Text -- TODO: change?
+type Metadata = L.Text
 
-data Clip = Clip Book ClipText Date
+data Clip = Clip Book ClipText Metadata
 
-rowToClip :: L.Text -> Clip
-rowToClip t = uncurry3 Clip $ extract t
-  where
-    extract :: L.Text -> (L.Text, L.Text, L.Text)
-    extract = undefined
+instance Show Clip where
+  show (Clip b ct _) = intercalate "\t" (L.unpack <$> [b, ct])
 
-clipToText :: Clip -> L.Text
-clipToText (Clip b ct d) = L.intercalate (L.pack ",") [b, ct, d]
-
+rowToClip :: L.Text -> Maybe Clip
+rowToClip t = let  ts = filter (not . L.null) $ L.replace (L.pack "\r\r") L.empty <$> (L.lines t)
+              in case ts of
+                   b:m:cts -> Just $ Clip b (L.intercalate (L.pack "\n") cts) m
+                   _       -> Nothing
+                   _         -> error $ "Cannot process input file"
 
 main :: IO ()
 main = withUtf8 $ do
-  clipRowTexts <- L.splitOn clipSep <$> TIO.readFile fileName
-  TIO.putStrLn $ head clipRowTexts
---  TIO.putStrLn $ head $ (clipToText . rowToClip) <$> clipRowTexts
-
-
+  clipRowTexts <- L.splitOn clipSep <$> T.readFile inputFileName  
+  T.writeFile outputFileName $ L.unlines $ (L.pack . show) <$> (rowToClip `mapMaybe` clipRowTexts)
+  

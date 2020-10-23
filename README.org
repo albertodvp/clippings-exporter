@@ -1,0 +1,38 @@
+* Clippings exporter
+This tool allows me to export/clean the clippings exported from my ebook reader
+
+** Input
+The input file name is temporarily hard-coded inside the script.
+
+The current supported format is the following:
+
+#+BEGIN_EXAMPLE
+  -- [numer of lines] - [content in that/those lines]
+  -- these lines are filtered out and not considered in the format: ["", "\r\r"]
+  * empty lines
+  1 line for the title
+  1 line for some metadata
+  + lines for the actual clipping
+#+END_EXAMPLE
+
+Example:
+#+BEGIN_EXAMPLE
+  Atomic Habits: Tiny Changes, Remarkable Results (James Clear)
+
+  - La tua evidenziazione a pagina 123 | posizione 1875-1876 | Aggiunto in data giovedì 22 ottobre 2020 09:49:30
+
+  Business is a never-ending quest to deliver the same result in an easier fashion.
+#+END_EXAMPLE
+
+** Output
+The output file name is temporarily hard-coded inside the script.
+
+The output consists on the a ~tsv~ file with the follwing inplicit (not actually present on the file) header: _code, clipping text_.
+
+The metadata is not used yet.
+** TODO
+- [ ] Parametrize input/output files
+- [ ] Add dependencies
+- [ ] Put english text on the README example
+- [ ] Add build information in README
+
